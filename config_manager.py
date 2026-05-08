@@ -89,7 +89,7 @@ class EnvironmentManager:
                     )
                     
                     # 广播环境变量变更
-                    self._broadcast_env_change()
+                    #self._broadcast_env_change()
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError(f"设置系统环境变量失败: {e.stderr}")
                 
@@ -114,7 +114,7 @@ class EnvironmentManager:
             )
             
             # 广播环境变量变更
-            self._broadcast_env_change()
+            # self._broadcast_env_change()
             
             return True
         except subprocess.CalledProcessError as e:
