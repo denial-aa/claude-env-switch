@@ -22,7 +22,7 @@
 
 ```bash
 # 克隆项目
-git clone <repository-url>
+git clone git@github.com:denial-aa/claude-env-switch.git
 cd claude-env-switch
 
 # 安装依赖
