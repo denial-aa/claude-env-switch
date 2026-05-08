@@ -4,10 +4,11 @@
 
 ## 功能特性
 
-- 多环境管理：创建、切换、删除不同的 Claude Code 配置环境
-- 可视化界面：直观的 GUI 操作界面
-- 快速启动脚本：自动生成 .bat 脚本，一键启动指定环境
-- 环境变量管理：自动配置 CLAUDE_CONFIG_DIR
+- **多环境管理**：创建、切换、删除不同的 Claude Code 配置环境
+- **现代化界面**：基于 PyQt6 的美观 GUI 操作界面
+- **快速启动脚本**：自动生成 .bat 脚本，一键启动指定环境
+- **环境变量管理**：自动配置 CLAUDE_CONFIG_DIR
+- **环境隔离**：不同项目使用独立的 Claude Code 配置
 
 ## 系统要求
 
@@ -23,6 +24,9 @@
 # 克隆项目
 git clone <repository-url>
 cd claude-env-switch
+
+# 安装依赖
+pip install PyQt6
 
 # 运行程序
 python main.py
@@ -54,10 +58,11 @@ python main.py
 
 ```
 claude-env-switch/
-├── main.py              # 可视化界面主程序
+├── main.py              # PyQt6 可视化界面主程序
 ├── config_manager.py    # 环境管理核心功能
 ├── script_manager.py    # 快速启动脚本管理
 ├── test.py              # 测试脚本
+├── requirements.txt     # Python 依赖
 ├── .gitignore           # Git 忽略配置
 └── README.md            # 项目说明文档
 ```

@@ -1,6 +1,7 @@
 import os
 import json
 import shutil
+import winreg
 from pathlib import Path
 from datetime import datetime
 
@@ -70,14 +71,52 @@ class EnvironmentManager:
         raise ValueError(f"环境 '{old_name}' 不存在")
     
     def switch_environment(self, name):
-        """切换到指定环境（设置环境变量）"""
+        """切换到指定环境（设置系统环境变量）"""
         for env in self.environments:
             if env['name'] == name:
+                # 设置当前进程的环境变量
                 os.environ['CLAUDE_CONFIG_DIR'] = env['config_dir']
+                
+                # 设置用户级别的环境变量（持久化）
+                try:
+                    key = winreg.OpenKey(
+                        winreg.HKEY_CURRENT_USER,
+                        r'Environment',
+                        0,
+                        winreg.KEY_SET_VALUE
+                    )
+                    winreg.SetValueEx(key, 'CLAUDE_CONFIG_DIR', 0, winreg.REG_EXPAND_SZ, env['config_dir'])
+                    winreg.CloseKey(key)
+                except Exception as e:
+                    raise RuntimeError(f"设置系统环境变量失败: {str(e)}")
+                
                 env['last_used'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 self._save_environments()
                 return env
         raise ValueError(f"环境 '{name}' 不存在")
+    
+    def clear_environment(self):
+        """清除 CLAUDE_CONFIG_DIR 环境变量（恢复默认）"""
+        # 清除当前进程的环境变量
+        if 'CLAUDE_CONFIG_DIR' in os.environ:
+            del os.environ['CLAUDE_CONFIG_DIR']
+        
+        # 清除用户级别的环境变量
+        try:
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r'Environment',
+                0,
+                winreg.KEY_SET_VALUE
+            )
+            try:
+                winreg.DeleteValue(key, 'CLAUDE_CONFIG_DIR')
+            except FileNotFoundError:
+                pass  # 变量不存在，无需删除
+            winreg.CloseKey(key)
+            return True
+        except Exception as e:
+            raise RuntimeError(f"清除系统环境变量失败: {str(e)}")
     
     def get_current_env(self):
         """获取当前激活的环境"""
