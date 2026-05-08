@@ -2,6 +2,8 @@ import os
 import json
 import shutil
 import winreg
+import ctypes
+import subprocess
 from pathlib import Path
 from datetime import datetime
 
@@ -77,18 +79,19 @@ class EnvironmentManager:
                 # 设置当前进程的环境变量
                 os.environ['CLAUDE_CONFIG_DIR'] = env['config_dir']
                 
-                # 设置用户级别的环境变量（持久化）
+                # 使用 setx 设置用户级别的环境变量（持久化）
                 try:
-                    key = winreg.OpenKey(
-                        winreg.HKEY_CURRENT_USER,
-                        r'Environment',
-                        0,
-                        winreg.KEY_SET_VALUE
+                    result = subprocess.run(
+                        ['setx', 'CLAUDE_CONFIG_DIR', env['config_dir']],
+                        capture_output=True,
+                        text=True,
+                        check=True
                     )
-                    winreg.SetValueEx(key, 'CLAUDE_CONFIG_DIR', 0, winreg.REG_EXPAND_SZ, env['config_dir'])
-                    winreg.CloseKey(key)
-                except Exception as e:
-                    raise RuntimeError(f"设置系统环境变量失败: {str(e)}")
+                    
+                    # 广播环境变量变更
+                    self._broadcast_env_change()
+                except subprocess.CalledProcessError as e:
+                    raise RuntimeError(f"设置系统环境变量失败: {e.stderr}")
                 
                 env['last_used'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 self._save_environments()
@@ -101,26 +104,33 @@ class EnvironmentManager:
         if 'CLAUDE_CONFIG_DIR' in os.environ:
             del os.environ['CLAUDE_CONFIG_DIR']
         
-        # 清除用户级别的环境变量
+        # 使用 setx 清除用户级别的环境变量
         try:
-            key = winreg.OpenKey(
-                winreg.HKEY_CURRENT_USER,
-                r'Environment',
-                0,
-                winreg.KEY_SET_VALUE
+            subprocess.run(
+                ['setx', 'CLAUDE_CONFIG_DIR', ''],
+                capture_output=True,
+                text=True,
+                check=True
             )
-            try:
-                winreg.DeleteValue(key, 'CLAUDE_CONFIG_DIR')
-            except FileNotFoundError:
-                pass  # 变量不存在，无需删除
-            winreg.CloseKey(key)
+            
+            # 广播环境变量变更
+            self._broadcast_env_change()
+            
             return True
-        except Exception as e:
-            raise RuntimeError(f"清除系统环境变量失败: {str(e)}")
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"清除系统环境变量失败: {e.stderr}")
     
     def get_current_env(self):
         """获取当前激活的环境"""
-        current_dir = os.environ.get('CLAUDE_CONFIG_DIR')
+        # 优先从系统用户环境变量获取（持久化的值）
+        try:
+            current_dir = winreg.QueryValueEx(
+                winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Environment'),
+                'CLAUDE_CONFIG_DIR'
+            )[0]
+        except FileNotFoundError:
+            current_dir = os.environ.get('CLAUDE_CONFIG_DIR')
+        
         if not current_dir:
             return None
         
