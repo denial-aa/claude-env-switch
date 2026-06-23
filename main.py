@@ -137,7 +137,7 @@ class ClaudeEnvManagerApp(QMainWindow):
         current_env_group = QGroupBox("当前环境")
         current_env_layout = QHBoxLayout(current_env_group)
         self.current_env_label = QLabel("未设置")
-        self.current_env_label.setFont(QFont("Microsoft YaHei UI", 12, QFont.Weight.Bold))
+        self.current_env_label.setFont(QFont("PingFang SC", 12, QFont.Weight.Bold))
         self.refresh_current_btn = QPushButton("刷新")
         self.refresh_current_btn.setFixedWidth(80)
         self.refresh_current_btn.clicked.connect(self._update_current_env)
@@ -429,7 +429,7 @@ class ClaudeEnvManagerApp(QMainWindow):
             script_path = self.script_manager.create_startup_script(env_name, env['config_dir'])
             self._update_script_status()
             QMessageBox.information(self, "成功", f"脚本已创建: {script_path}\n\n将脚本目录添加到 PATH 后即可使用。")
-            self.status_bar.showMessage(f"脚本 '{env_name}.bat' 已创建")
+            self.status_bar.showMessage(f"脚本 '{env_name}.sh' 已创建")
         except Exception as e:
             QMessageBox.critical(self, "错误", f"创建脚本失败: {str(e)}")
     
@@ -441,10 +441,10 @@ class ClaudeEnvManagerApp(QMainWindow):
         
         if self.script_manager.remove_startup_script(env_name):
             self._update_script_status()
-            QMessageBox.information(self, "成功", f"脚本 '{env_name}.bat' 已删除")
-            self.status_bar.showMessage(f"脚本 '{env_name}.bat' 已删除")
+            QMessageBox.information(self, "成功", f"脚本 '{env_name}.sh' 已删除")
+            self.status_bar.showMessage(f"脚本 '{env_name}.sh' 已删除")
         else:
-            QMessageBox.warning(self, "警告", f"脚本 '{env_name}.bat' 不存在")
+            QMessageBox.warning(self, "警告", f"脚本 '{env_name}.sh' 不存在")
     
     def _add_to_path(self):
         success, message = self.script_manager.add_scripts_to_path()

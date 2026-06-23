@@ -59,7 +59,7 @@ def test_script_manager():
     manager = ScriptManager()
     
     print("\n1. 创建测试脚本:")
-    script_path = manager.create_startup_script("test-env", "D:\\test-config")
+    script_path = manager.create_startup_script("test-env", "/tmp/test-config")
     print(f"   ✓ 脚本创建成功: {script_path}")
     
     print("\n2. 检查脚本是否存在:")
