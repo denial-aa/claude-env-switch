@@ -188,7 +188,7 @@ class ClaudeEnvManagerApp(QMainWindow):
         script_group = QGroupBox("快速启动脚本")
         script_layout = QHBoxLayout(script_group)
         self.script_status_label = QLabel("")
-        self.btn_create_script = QPushButton("创建脚本")
+        self.btn_create_script = QPushButton("为环境创建启动脚本")
         self.btn_remove_script = QPushButton("删除脚本")
         self.btn_add_path = QPushButton("添加到 PATH")
         
